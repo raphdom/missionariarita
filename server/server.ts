@@ -6,9 +6,13 @@ import * as cookieParser from "cookie-parser";
 import * as express from "express";
 import * as logger from "morgan";
 import * as path from "path";
+import mongoose = require("mongoose"); //import mongoose
 import errorHandler = require("errorhandler");
 import methodOverride = require("method-override");
 import {IndexRoute} from "./routes/index";
+import {IModel} from "./models/model";
+import {IAlbumModel} from "./models/album";
+import {albumSchema} from "./schemas/album";
 
 /**
  * The server.
@@ -18,6 +22,8 @@ import {IndexRoute} from "./routes/index";
 export class Server {
 
   public app: express.Application;
+
+  private model: IModel; //an instance of IModel
 
   /**
    * Bootstrap the application.
@@ -38,6 +44,8 @@ export class Server {
    * @constructor
    */
   constructor() {
+
+    this.model = new Object(); //initialize this to an empty object
     //create expressjs application
     this.app = express();
 
@@ -68,6 +76,9 @@ export class Server {
    * @method config
    */
   public config() {
+
+    const MONGODB_CONNECTION: string = "mongodb://localhost:27017/missionariarita";
+
     //empty for now
     this.app.use(express.static(path.join(__dirname, "public")));
 
@@ -93,6 +104,14 @@ export class Server {
 
     //use override middlware
     this.app.use(methodOverride());
+
+    global.Promise = require("q").Promise;
+    mongoose.Promise = global.Promise;
+
+    let connection: mongoose.Connection = mongoose.createConnection(MONGODB_CONNECTION);
+
+    //create models
+    this.model.album = connection.model<IAlbumModel>("albuns", albumSchema);
 
     //catch 404 and forward to error handler
     this.app.use(function(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
