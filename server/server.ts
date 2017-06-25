@@ -10,9 +10,9 @@ import mongoose = require("mongoose"); //import mongoose
 import errorHandler = require("errorhandler");
 import methodOverride = require("method-override");
 import {IndexRoute} from "./routes/index";
-import {IModel} from "./models/model";
-import {IAlbumModel} from "./models/album";
-import {albumSchema} from "./schemas/album";
+import {AlbumRoute} from "./routes/album";
+import * as multer from 'multer';
+import * as cors from 'cors';
 
 /**
  * The server.
@@ -22,8 +22,6 @@ import {albumSchema} from "./schemas/album";
 export class Server {
 
   public app: express.Application;
-
-  private model: IModel; //an instance of IModel
 
   /**
    * Bootstrap the application.
@@ -45,12 +43,13 @@ export class Server {
    */
   constructor() {
 
-    this.model = new Object(); //initialize this to an empty object
     //create expressjs application
     this.app = express();
 
     //configure application
     this.config();
+
+    this.configFileUpload();
 
     //add routes
     this.routes();
@@ -82,6 +81,8 @@ export class Server {
     //empty for now
     this.app.use(express.static(path.join(__dirname, "public")));
 
+    this.app.use(cors());
+
     //configure pug
     if (this.app.get('env') === 'production') {
       // in production mode run application from dist folder
@@ -108,10 +109,7 @@ export class Server {
     global.Promise = require("q").Promise;
     mongoose.Promise = global.Promise;
 
-    let connection: mongoose.Connection = mongoose.createConnection(MONGODB_CONNECTION);
-
-    //create models
-    this.model.album = connection.model<IAlbumModel>("albuns", albumSchema);
+    mongoose.connect(MONGODB_CONNECTION);
 
     //catch 404 and forward to error handler
     this.app.use(function(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -136,8 +134,25 @@ export class Server {
 
     //IndexRoute
     IndexRoute.create(router);
+    AlbumRoute.create(router);
 
     //use router middleware
     this.app.use(router);
   }
+
+  public configFileUpload(){
+    /*this.app.use(multer({
+      dest: DIR,
+      rename: function (fieldname, filename) {
+        return filename + Date.now();
+      },
+      onFileUploadStart: function (file) {
+        console.log(file.originalname + ' is starting ...');
+      },
+      onFileUploadComplete: function (file) {
+        console.log(file.fieldname + ' uploaded to  ' + file.path);
+      }
+    }));*/
+  }
+
 }

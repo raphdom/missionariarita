@@ -1,0 +1,10 @@
+<h2 md-dialog-title>new album</h2>
+<md-dialog-content>
+  <input type="file" ng2FileSelect [uploader]="uploader" multiple  />
+
+</md-dialog-content>
+<md-dialog-actions>
+  <button md-button md-dialog-close>Cancel</button>
+  <!-- Can optionally provide a result for the closing dialog. -->
+  <button md-button (click)="save()">Save</button>
+</md-dialog-actions>
