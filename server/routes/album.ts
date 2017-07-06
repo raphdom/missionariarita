@@ -4,6 +4,12 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { BaseRoute } from "./route";
 import * as multer from 'multer';
+import {AlbumController} from "../album";
+import {AlbumCollection} from "../models/album";
+import {GoogleDriveUtils} from "../utils/googledrive";
+import * as fs from "fs";
+import * as path from "path";
+const thumb = require('node-thumbnail').thumb;
 
 
 /**
@@ -24,15 +30,43 @@ export class AlbumRoute extends BaseRoute {
     //log
     console.log("[AlbumRoute::create] Creating album route.");
 
-    const storage = multer.diskStorage({
+    const storage = new multer.diskStorage({
       destination: function (req, file, cb) {
         cb(null, 'uploads/')
       },
       filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now())
+        cb(null, file.originalname)
       }
     });
     const upload = multer({ storage: storage });
+
+    router.post("/album/file",upload.any(),function (req:any, res, next: NextFunction) {
+      AlbumController.getAlbum(req.body.album).then(album=>{
+        let filename = req.files[0].originalname;
+        let pathFile = path.join("uploads",filename);
+        thumb({
+          source: pathFile, // could be a filename: dest/path/image.jpg
+          destination: "uploads",
+          concurrency: 4,
+          width: 700
+        }, function(files, err, stdout, stderr) {
+          let pathThumb = files[0].dstPath;
+          let thumbFilename = files[0].dstPath.replace("uploads/","");
+          new GoogleDriveUtils().upload(pathFile,filename,(err, result, response)=>{
+            new GoogleDriveUtils().upload(pathThumb,thumbFilename,(err, resultThumb, response)=>{
+              result.thumbs=[];
+              result.thumbs.push(resultThumb);
+              album.images.push(result);
+              fs.unlinkSync(pathFile);
+              fs.unlinkSync(pathThumb);
+              AlbumController.updateAlbum(album).then(album=>{
+                return next();
+              });
+            });
+          });
+        });
+      });
+    });
 
     router.route('/album')
       .options(function (req, res, next: NextFunction) {
@@ -40,18 +74,36 @@ export class AlbumRoute extends BaseRoute {
         return next();
       })
       .get(function (req, res, next: NextFunction) {
-        new AlbumRoute().listAlbuns(req, res, next);
+        AlbumController.getAlbuns().then(albuns=>{
+          res.json(albuns);
+          return next();
+        });
       })
-      .post(upload.any(),function (req, res, next: NextFunction) {
-        new AlbumRoute().updateAlbum(req, res, next);
+      .post(function (req, res, next: NextFunction) {
+        AlbumController.addAlbum(req.body.title,req.body.subtitle,req.body.description).then(album=>{
+          res.json(album);
+          return next();
+        });
       })
       .put(function (req, res, next: NextFunction) {
-        new AlbumRoute().addAlbum(req, res, next);
-      })
-      .delete(function (req, res, next: NextFunction) {
-        new AlbumRoute().deleteAlbum(req, res, next);
+        return next();
       });
 
+      router.delete('/album',function (req, res, next: NextFunction) {
+        AlbumController.removeAlbum(req.body.id).then(result=>{
+          res.send(result);
+          return next();
+        })
+      })
+
+
+    router.get("/album/file",function (req:any, res) {
+      new GoogleDriveUtils().download(req.query.file,(arg2)=>{
+        arg2.pipe(res);
+        //res.end(arg2._writableState.getBuffer());
+        //return next();
+      });
+    });
   }
 
   /**
@@ -64,21 +116,4 @@ export class AlbumRoute extends BaseRoute {
     super();
   }
 
-  public listAlbuns(req: Request, res: Response, next: NextFunction) {
-    res.send({message:"ok"});
-    return next();
-  }
-
-  public addAlbum(req: Request, res: Response, next: NextFunction) {
-    return next();
-  }
-
-  public updateAlbum(req: Request, res: Response, next: NextFunction) {
-    return next();
-  }
-
-  public deleteAlbum(req: Request, res: Response, next: NextFunction) {
-    res.send({message:"ok"});
-    return next();
-  }
 }

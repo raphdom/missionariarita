@@ -10,16 +10,42 @@ import {AlbumService} from "./album.service";
 })
 export class AlbumDialogComponent implements OnInit {
 
+  public albuns:any;
+
   constructor(public dialog: MdDialog, private albumService:AlbumService){}
 
   ngOnInit() {
-    this.albumService.listAlbuns().subscribe(result=>{
-      console.log(result);
-    });
+    this.getListOfAlbuns();
   }
 
   onAdd(){
-    this.dialog.open(AlbumDialogAddComponent);
+    let dialogRef = this.dialog.open(AlbumDialogAddComponent);
+    dialogRef.afterClosed().subscribe(result => {
+      this.albumService.admin(result).subscribe(result=>{
+        this.getListOfAlbuns();
+      });
+    });
+  }
+
+  getListOfAlbuns(){
+    this.albumService.listAlbuns().subscribe(result=>{
+      this.albuns = result;
+    });
+  }
+
+  onDelete(item){
+    this.albumService.deleteAlbum(item._id).subscribe(result=>{
+      this.getListOfAlbuns();
+    });
+  }
+
+  onEdit(item){
+    let dialogRef = this.dialog.open(AlbumDialogAddComponent,{data:item});
+    dialogRef.afterClosed().subscribe(result => {
+      this.albumService.admin(result).subscribe(result=>{
+        this.getListOfAlbuns();
+      });
+    });
   }
 
 }

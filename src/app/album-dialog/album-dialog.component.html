@@ -1,5 +1,11 @@
 <h2 md-dialog-title>Gestão de Albuns</h2>
 <md-dialog-content>
-
+  <md-list>
+    <md-list-item *ngFor="let item of albuns">
+      {{item['title']}}
+      <button md-mini-fab (click)="onEdit(item)"><md-icon>mode_edit</md-icon></button>
+      <button md-mini-fab (click)="onDelete(item)"><md-icon>delete</md-icon></button>
+    </md-list-item>
+  </md-list>
 </md-dialog-content>
-<button md-raised-button (click)="onAdd()">Add new</button>
+<button md-raised-button (click)="onAdd()">Adicionar</button>

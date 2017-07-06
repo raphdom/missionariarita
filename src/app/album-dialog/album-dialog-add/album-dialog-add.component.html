@@ -1,6 +1,20 @@
-<h2 md-dialog-title>new album</h2>
+<h2 md-dialog-title>NOVO ÁLBUM</h2>
 <md-dialog-content>
-  <input type="file" ng2FileSelect [uploader]="uploader" multiple  />
+  <div fxLayout="column">
+    <md-input-container>
+      <input mdInput placeholder="Title" [(ngModel)]="album.title">
+    </md-input-container>
+    <md-input-container>
+      <input mdInput placeholder="Subtitle" [(ngModel)]="album.subtitle">
+    </md-input-container>
+    <md-input-container>
+      <textarea mdInput placeholder="Description" [(ngModel)]="album.description"></textarea>
+    </md-input-container>
+    <input type="file" ng2FileSelect [uploader]="uploader" multiple  />
+    <md-list>
+      <md-list-item *ngFor="let file of files"> {{file.name}} </md-list-item>
+    </md-list>
+  </div>
 
 </md-dialog-content>
 <md-dialog-actions>

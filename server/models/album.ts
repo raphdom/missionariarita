@@ -24,4 +24,4 @@ export interface IAlbumModel extends IAlbum, Document {
   //custom methods for your model would be defined here
 }
 
-export const User = mongoose.model<IAlbum>("Album", AlbumSchema, "albuns");
+export const AlbumCollection = mongoose.model<IAlbum>("Album", AlbumSchema, "albuns");

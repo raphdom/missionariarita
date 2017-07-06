@@ -34,7 +34,7 @@
       <a href="https://twitter.com" target="_blank" class="twitter"><i class="fa fa-twitter"></i></a>
       <a href="https://plus.google.com" target="_blank" class="google-plus"><i class="fa fa-google-plus"></i></a>
     </div>
-    <div class="copyright"> © Rita Salomé.<br>
+    <div class="copyright"><a href="javascript:none" (click)="onClickAdmin()">© Rita Salomé</a><br>
       All Rights Reserved. </div>
 
   </aside>
@@ -302,7 +302,7 @@
       <article class="content portfolio white-bg" id="chapterportfolio">
         <div class="inner">
           <h2>Galeria</h2>
-          <button md-raised-button (click)="onClickManageAlbuns()">Gerir Albuns</button>
+          <button md-raised-button (click)="onClickManageAlbuns()" *ngIf="admin">GERIR ÁLBUNS</button>
           <div class="title-divider"></div>
           <h3>Our portfolio features a variety of projects and services</h3>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ornare sem sed quam tempus aliquet vitae eget dolor. Proin eu ultrices libero. Curabitur vulputate vestibulum elementum. Suspendisse id neque a nibh mollis blandit. Quisque varius eros ac purus dignissim.</p>
@@ -354,6 +354,15 @@
                             <div class="figcaption-details"> <img src="assets/images/icon-plus.png" height="82" width="82" alt="" />
                               <h3>Whole Food Flour</h3>
                               <span>Branding and Identity</span> </div>
+                          </figcaption>
+                        </figure>
+                      </li>
+                      <li *ngFor="let album of albuns">
+                        <figure> <img [src]="getSafeUrl(album)" alt=""/>
+                          <figcaption>
+                            <div class="figcaption-details"> <img src="assets/images/icon-plus.png" height="82" width="82" alt="" />
+                              <h3>{{album.title}}</h3>
+                              <span>{{album.subtitle}}</span> </div>
                           </figcaption>
                         </figure>
                       </li>
@@ -421,6 +430,15 @@
                             <p>Kale chips lomo biodiesel stumptown Godard Tumblr, mustache sriracha tattooed cray aute slow-carb placeat delectus. Letterpress asymmetrical fanny pack art party est pour-over skateboard anim quis, ullamco craft beer.</p>
                           </figcaption>
                           <img src="http://placehold.it/700x475" alt=""/></figure>
+                      </li>
+                      <li *ngFor="let album of albuns">
+                        <figure>
+                          <figcaption>
+                            <h3>{{album.title}}</h3>
+                            <span>{{album.subtitle}}</span>
+                            <p>{{album.description}}</p>
+                          </figcaption>
+                          <img *ngFor="let img of album.images" [src]="getSafeUrl(album)" alt=""/></figure>
                       </li>
                     </ul>
                     <nav> <span class="fa nav-prev"></span> <span class="fa nav-next"></span> <span class="fa nav-close"></span> </nav>

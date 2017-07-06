@@ -27,6 +27,15 @@ export class IndexRoute extends BaseRoute {
     router.get("/", (req: Request, res: Response, next: NextFunction) => {
       new IndexRoute().index(req, res, next);
     });
+
+    router.get("/admin", (req: Request, res: Response, next: NextFunction) => {
+      if (req.query.pass==process.env.NODE_PASS){
+        res.send(true);
+      }else{
+        res.send(false);
+      }
+      return next();
+    });
   }
 
   /**

@@ -13,6 +13,7 @@ import {IndexRoute} from "./routes/index";
 import {AlbumRoute} from "./routes/album";
 import * as multer from 'multer';
 import * as cors from 'cors';
+import {GoogleDriveUtils} from "./utils/googledrive";
 
 /**
  * The server.
@@ -56,6 +57,12 @@ export class Server {
 
     //add api
     this.api();
+
+    /*new GoogleDriveUtils().upload((err, result, response)=>{
+      console.log("finished");
+    });*/
+    //new GoogleDriveUtils().download("0B8m4JW1vqcc_ZDlxNXEwZmt5MFE",null);
+    //new GoogleDriveUtils().run();
   }
 
   /**
